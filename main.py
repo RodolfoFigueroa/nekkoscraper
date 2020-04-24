@@ -1,4 +1,8 @@
-import requests, zipfile, io, os, wget
+import requests
+import zipfile
+import io
+import os
+import wget
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse, urljoin, parse_qs, quote_plus
 
@@ -26,7 +30,7 @@ def get_links(u):
         qs = parse_qs(parsed_href.query)
         if len(qs)==1:
             ap = "?dir=" + quote_plus(qs['dir'][0], safe='/')
-            if ap[-1] != "/":
+            if ap[-1] != "/": #workaround to ignore broken href tags in html
                 ap = ""
         else:
             ap = ""
@@ -39,21 +43,21 @@ def get_links(u):
 
 
 total_urls_visited = 0
-max_urls = 5
+max_urls = -1
 extensions = {"ass", "srt", "zip", "rar", "7z", "ssa"}
 
 
-def crawl(url):
+def crawl(u):
     global total_urls_visited
     total_urls_visited += 1
     print(total_urls_visited)
-    qs = parse_qs(urlparse(url).query)
+    qs = parse_qs(urlparse(u).query)
+    title = "dummy"
     if qs:
         title = qs['dir'][0].split("subtitles")[1][1:-1]
-        print(title)
-    links = get_links(url)
+    links = get_links(u)
     for link in links:
-        if total_urls_visited > max_urls:
+        if max_urls > 0 and total_urls_visited > max_urls:
             break
         ext = link.rsplit(".", 1)[-1].casefold()
         if ext in extensions:
