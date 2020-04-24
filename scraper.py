@@ -1,6 +1,8 @@
 import requests
+import os
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse, urljoin, parse_qs, quote_plus
+
 
 internal_urls = set()
 
@@ -42,27 +44,30 @@ filelist = []
 
 def crawl(u, max_urls):
     global total_urls_visited
+    if 0 <= max_urls <= total_urls_visited:
+        return
     total_urls_visited += 1
     print(total_urls_visited)
     qs = parse_qs(urlparse(u).query)
-    title = "dummy"
+    title = "$$"
     if qs:
         title = qs['dir'][0].split("subtitles")[1][1:-1]
+    out = [title]
     links = get_links(u)
     for link in links:
-        if max_urls > 0 and total_urls_visited > max_urls:
-            break
         ext = link.rsplit(".", 1)[-1].casefold()
         if ext in extensions:
-            print("FILE: ", link)
-            filelist.append([title, link])
+            out.append(link)
         else:
             crawl(link, max_urls)
-    return filelist
+    if len(out) > 1:
+        filelist.append(out)
+    return
 
 
 def list_files(u, path="filelist.txt", max_urls=-1):
-    filelist = crawl(u, max_urls)
+    crawl(u, max_urls)
+    global filelist
     with open(path, 'w') as f:
         for item in filelist:
             f.write("%s\n" % item)
