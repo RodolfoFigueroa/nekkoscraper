@@ -31,11 +31,7 @@ def get_links(u):
         else:
             ap = ""
         href = parsed_href.scheme + "://" + parsed_href.netloc + parsed_href.path + ap
-        b1 = top_domain != href
-        b2 = is_valid(href)
-        b3 = href not in internal_urls
-        b4 = top_domain in href
-        if b1 and b2 and b3 and b4:
+        if top_domain != href and is_valid(href) and href not in internal_urls and top_domain in href:
             print("INTERNAL", href)
             urls.add(href)
             internal_urls.add(href)
