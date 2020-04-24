@@ -58,14 +58,14 @@ def crawl(url):
         ext = link.rsplit(".", 1)[-1].casefold()
         if ext in extensions:
             print(f"FILE: {link}")
-            filelist.append([title,link])
+            filelist.append([title, link])
         else:
             crawl(link)
 
 
 if __name__ == "__main__":
     filelist = []
-    root = "C:\\Users\\Rodolfo\\Documents\\NLP\\anisub\\zips\\"
+    root = "./zips/"
     crawl(url)
     for f in filelist:
         if "font".casefold() not in f[1].casefold() and "fonts".casefold() not in f[1].casefold():
