@@ -1,3 +1,4 @@
 zips/
 venv/
 .idea/
+*.tmp

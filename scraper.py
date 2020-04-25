@@ -24,7 +24,7 @@ def get_links(u):
         href = urljoin(u, href)
         parsed_href = urlparse(href)
         qs = parse_qs(parsed_href.query)
-        if len(qs) == 1:
+        if "dir" in qs.keys():
             ap = "?dir=" + quote_plus(qs['dir'][0], safe='/')
             if ap[-1] != "/": #workaround to ignore broken href tags in html
                 ap = ""
@@ -38,11 +38,12 @@ def get_links(u):
 
 
 total_urls_visited = 0
-extensions = {"ass", "srt", "zip", "rar", "7z", "ssa"}
+exclude = {".php"}
 filelist = []
 
 
 def crawl(u, max_urls):
+    print("CHECKING", u)
     global total_urls_visited
     if 0 <= max_urls <= total_urls_visited:
         return
@@ -55,9 +56,11 @@ def crawl(u, max_urls):
     out = [title]
     links = get_links(u)
     for link in links:
-        ext = link.rsplit(".", 1)[-1].casefold()
-        if ext in extensions:
-            out.append(link)
+        ext = os.path.splitext(link)[1].casefold()
+        if ext != "":
+            if ext not in exclude:
+                print("FILE: ", link)
+                out.append(link)
         else:
             crawl(link, max_urls)
     if len(out) > 1:
@@ -68,7 +71,7 @@ def crawl(u, max_urls):
 def list_files(u, path="filelist.txt", max_urls=-1):
     crawl(u, max_urls)
     global filelist
-    with open(path, 'w') as f:
+    with open(path, 'w', encoding='utf-8') as f:
         for item in filelist:
             f.write("%s\n" % item)
     return
